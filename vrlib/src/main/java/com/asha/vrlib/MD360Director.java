@@ -36,7 +36,7 @@ public class MD360Director {
     private final MDDirectorCamUpdate mCameraUpdate = new MDDirectorCamUpdate();
     private final MDMutablePosition mCameraRotation = MDMutablePosition.newInstance();
     private final MDQuaternion mViewQuaternion = new MDQuaternion();
-    private MDDirectorFilter mDirectorFilter;
+    private MDDirectorFilter mDirectorFilter = new MDDirectorFilter();
 
     private float mDeltaX;
     private float mDeltaY;
