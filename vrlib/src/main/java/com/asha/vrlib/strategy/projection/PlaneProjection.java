@@ -1,6 +1,6 @@
 package com.asha.vrlib.strategy.projection;
 
-import android.app.Activity;
+import android.content.Context;
 import android.graphics.RectF;
 import android.opengl.Matrix;
 
@@ -32,18 +32,18 @@ public class PlaneProjection extends AbsProjectionStrategy {
     }
 
     @Override
-    public void turnOnInGL(Activity activity) {
+    public void turnOnInGL(Context context) {
         object3D = new MDPlane(planeScaleCalculator);
-        MDObject3DHelper.loadObj(activity, object3D);
+        MDObject3DHelper.loadObj(context, object3D);
     }
 
     @Override
-    public void turnOffInGL(Activity activity) {
+    public void turnOffInGL(Context context) {
 
     }
 
     @Override
-    public boolean isSupport(Activity activity) {
+    public boolean isSupport(Context context) {
         return true;
     }
 
@@ -215,8 +215,11 @@ public class PlaneProjection extends AbsProjectionStrategy {
 
     private class OrthogonalDirector extends MD360Director{
 
+        private final float sNearBase;
+
         private OrthogonalDirector(Builder builder) {
             super(builder);
+            sNearBase = getNear();
         }
 
         @Override
@@ -238,12 +241,13 @@ public class PlaneProjection extends AbsProjectionStrategy {
         protected void updateProjection(){
             planeScaleCalculator.setViewportRatio(getRatio());
             planeScaleCalculator.calculate();
-            final float left = - planeScaleCalculator.getViewportWidth()/2;
-            final float right = planeScaleCalculator.getViewportWidth()/2;
-            final float bottom = - planeScaleCalculator.getViewportHeight()/2;
-            final float top = planeScaleCalculator.getViewportHeight()/2;
+            float scale = sNearBase / getNear();
+            final float left = - planeScaleCalculator.getViewportWidth() / 2 * scale;
+            final float right = planeScaleCalculator.getViewportWidth() / 2 * scale;
+            final float bottom = - planeScaleCalculator.getViewportHeight() / 2 * scale;
+            final float top = planeScaleCalculator.getViewportHeight() / 2 * scale;
             final float far = 500;
-            Matrix.orthoM(getProjectionMatrix(), 0, left, right, bottom, top, getNear(), far);
+            Matrix.orthoM(getProjectionMatrix(), 0, left, right, bottom, top, 1, far);
         }
     }
 

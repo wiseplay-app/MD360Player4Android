@@ -26,7 +26,7 @@ allprojects {
 ```
 ```java
 dependencies {
-    compile 'com.github.ashqal:MD360Player4Android:2.4.0'
+    compile 'com.github.ashqal:MD360Player4Android:2.5.0'
 }
 ```
 
@@ -123,7 +123,7 @@ https://github.com/ashqal/MD360Player4Android/wiki/Advanced-Usage
 ## Feedback
 * Open a new issue.
 * or ashqalcn@gmail.com
-* or QQ Group.<br/>
+* or QQ Group(抱歉，群已满).<br/>
 ![QQ Group](https://cloud.githubusercontent.com/assets/5126517/16213934/e398b010-3785-11e6-8877-5d88d9dc3f33.jpeg)
 
 ## LICENSE

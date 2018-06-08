@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.asha.vrlib.MDDirectorCamUpdate;
 import com.asha.vrlib.MDVRLibrary;
+import com.asha.vrlib.model.MDHitEvent;
 import com.asha.vrlib.model.MDHotspotBuilder;
 import com.asha.vrlib.model.MDPosition;
 import com.asha.vrlib.model.MDRay;
@@ -61,6 +62,7 @@ public abstract class MD360PlayerActivity extends Activity {
     private static final SparseArray<String> sProjectionMode = new SparseArray<>();
     private static final SparseArray<String> sAntiDistortion = new SparseArray<>();
     private static final SparseArray<String> sPitchFilter = new SparseArray<>();
+    private static final SparseArray<String> sFlingEnabled = new SparseArray<>();
 
     static {
         sDisplayMode.put(MDVRLibrary.DISPLAY_MODE_NORMAL,"NORMAL");
@@ -91,6 +93,9 @@ public abstract class MD360PlayerActivity extends Activity {
 
         sPitchFilter.put(1,"FILTER PITCH");
         sPitchFilter.put(0,"FILTER NOP");
+
+        sFlingEnabled.put(1, "FLING ENABLED");
+        sFlingEnabled.put(0, "FLING DISABLED");
     }
 
     public static void startVideo(Context context, Uri uri){
@@ -99,6 +104,10 @@ public abstract class MD360PlayerActivity extends Activity {
 
     public static void startBitmap(Context context, Uri uri){
         start(context, uri, BitmapPlayerActivity.class);
+    }
+
+    public static void startCubemap(Context context, Uri uri){
+        start(context, uri, CubemapPlayerActivity.class);
     }
 
     private static void start(Context context, Uri uri, Class<? extends Activity> clz){
@@ -359,9 +368,11 @@ public abstract class MD360PlayerActivity extends Activity {
 
         final TextView hotspotText = (TextView) findViewById(R.id.hotspot_text);
         final TextView directorBriefText = (TextView) findViewById(R.id.director_brief_text);
-        getVRLibrary().setEyePickChangedListener(new MDVRLibrary.IEyePickListener() {
+        getVRLibrary().setEyePickChangedListener(new MDVRLibrary.IEyePickListener2() {
             @Override
-            public void onHotspotHit(IMDHotspot hotspot, long hitTimestamp) {
+            public void onHotspotHit(MDHitEvent hitEvent) {
+                IMDHotspot hotspot = hitEvent.getHotspot();
+                long hitTimestamp = hitEvent.getTimestamp();
                 String text = hotspot == null ? "nop" : String.format(Locale.CHINESE, "%s  %fs", hotspot.getTitle(), (System.currentTimeMillis() - hitTimestamp) / 1000.0f );
                 hotspotText.setText(text);
 
@@ -425,6 +436,17 @@ public abstract class MD360PlayerActivity extends Activity {
                     }
                 })
                 .init(R.id.spinner_pitch_filter);
+
+        SpinnerHelper.with(this)
+                .setData(sFlingEnabled)
+                .setDefault(getVRLibrary().isFlingEnabled() ? 1 : 0)
+                .setClickHandler(new SpinnerHelper.ClickHandler() {
+                    @Override
+                    public void onSpinnerClicked(int index, int key, String value) {
+                        getVRLibrary().setFlingEnabled(key == 1);
+                    }
+                })
+                .init(R.id.spinner_fling_enable);
     }
 
 

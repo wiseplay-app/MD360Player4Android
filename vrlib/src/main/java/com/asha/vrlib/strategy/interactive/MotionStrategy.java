@@ -1,12 +1,12 @@
 package com.asha.vrlib.strategy.interactive;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.asha.vrlib.MD360Director;
 import com.asha.vrlib.common.MDMainHandler;
@@ -19,8 +19,8 @@ import com.asha.vrlib.common.VRUtil;
 public class MotionStrategy extends AbsInteractiveStrategy implements SensorEventListener {
 
     private static final String TAG = "MotionStrategy";
-
-    private int mDeviceRotation;
+	
+    private WindowManager windowManager;
 
     private float[] mSensorMatrix = new float[16];
 
@@ -54,34 +54,33 @@ public class MotionStrategy extends AbsInteractiveStrategy implements SensorEven
     }
 
     @Override
-    public void onOrientationChanged(Activity activity) {
-        mDeviceRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+    public void onOrientationChanged(Context context) {
     }
 
     @Override
-    public void turnOnInGL(Activity activity) {
+    public void turnOnInGL(Context context) {
         isOn = true;
-        mDeviceRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         for (MD360Director director : getDirectorList()){
             director.reset();
         }
     }
 
     @Override
-    public void turnOffInGL(final Activity activity) {
+    public void turnOffInGL(final Context context) {
         isOn = false;
-        activity.runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                unregisterSensor(activity);
+                unregisterSensor(context);
             }
         });
     }
 
     @Override
-    public boolean isSupport(Activity activity) {
+    public boolean isSupport(Context context) {
         if (mIsSupport == null){
-            SensorManager mSensorManager = (SensorManager) activity
+            SensorManager mSensorManager = (SensorManager) context
                     .getSystemService(Context.SENSOR_SERVICE);
             Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             mIsSupport = (sensor != null);
@@ -127,7 +126,7 @@ public class MotionStrategy extends AbsInteractiveStrategy implements SensorEven
             switch (type){
                 case Sensor.TYPE_ROTATION_VECTOR:
                     // post
-                    VRUtil.sensorRotationVector2Matrix(event, mDeviceRotation, mSensorMatrix);
+                    VRUtil.sensorRotationVector2Matrix(event, windowManager.getDefaultDisplay().getRotation(), mSensorMatrix);
 
                     // mTmpMatrix will be used in multi thread.
                     synchronized (mMatrixLock){
