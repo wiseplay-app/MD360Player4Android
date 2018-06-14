@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.view.Surface;
+import android.view.WindowManager;
 
 import com.asha.vrlib.MD360Director;
 import com.asha.vrlib.common.MDMainHandler;
@@ -48,6 +49,8 @@ public class CardboardMotionStrategy extends AbsInteractiveStrategy implements S
 
     private final Vector3d mLatestGyro = new Vector3d();
 
+    private boolean isOn;
+
     public CardboardMotionStrategy(InteractiveModeManager.Params params) {
         super(params);
     }
@@ -69,11 +72,13 @@ public class CardboardMotionStrategy extends AbsInteractiveStrategy implements S
 
     @Override
     public void onOrientationChanged(Context context) {
+        updateDeviceRotation(context);
     }
 
     @Override
     public void turnOnInGL(Context context) {
         isOn = true;
+        updateDeviceRotation(context);
         for (MD360Director director : getDirectorList()){
             director.reset();
         }
@@ -131,9 +136,15 @@ public class CardboardMotionStrategy extends AbsInteractiveStrategy implements S
         mRegistered = false;
     }
 
+    protected void updateDeviceRotation(Context context) {
+        WindowManager windowManager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        mDeviceRotation = windowManager.getDefaultDisplay().getRotation();
+    }
+
     @Override
     public void onSensorChanged(final SensorEvent event) {
-        if (event.accuracy != 0){
+        if (isOn && event.accuracy != 0){
             if (getParams().mSensorListener != null){
                 getParams().mSensorListener.onSensorChanged(event);
             }
@@ -162,7 +173,7 @@ public class CardboardMotionStrategy extends AbsInteractiveStrategy implements S
     private Runnable updateSensorRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!mRegistered) return;
+            if (!mRegistered || !isOn) return;
 
             // mTracker will be used in multi thread.
             synchronized (mTracker){
