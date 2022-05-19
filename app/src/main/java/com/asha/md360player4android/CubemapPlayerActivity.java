@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.util.Log;
@@ -93,6 +94,7 @@ public class CubemapPlayerActivity extends MD360PlayerActivity {
 
     @Override
     protected MDVRLibrary createVRLibrary() {
+        GLSurfaceView glView = findViewById(R.id.gl_view);
         return MDVRLibrary.with(this)
                 .displayMode(MDVRLibrary.DISPLAY_MODE_NORMAL)
                 .interactiveMode(MDVRLibrary.INTERACTIVE_MODE_TOUCH)
@@ -142,7 +144,7 @@ public class CubemapPlayerActivity extends MD360PlayerActivity {
                     }
                 })
                 .pinchEnabled(true)
-                .build(findViewById(R.id.gl_view));
+                .build(glView);
     }
 
     private Uri getDrawableUri(@DrawableRes int resId){

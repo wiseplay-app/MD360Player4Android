@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 30
         versionCode 6
         versionName "1.0.1"
     }
@@ -19,6 +19,20 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'com.github.wiseplay-app'
+                artifactId = 'MD360Player4Android'
+                version = '2.5.0.3'
+            }
+        }
+    }
 }
